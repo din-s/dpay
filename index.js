@@ -208,7 +208,31 @@ app.get("/transactions", async (req, res) => {
     res.status(200).send(transactions)
 })
 
-app.get("/wallet/:id", (req, res) => {
+app.get("/wallet/:id", async (req, res) => {
+    const { id: walletId } = req.params;
+    if(!mongoose.Types.ObjectId.isValid(walletId)) {
+        res.status(400).send({
+            error: 'Invalid Wallet Id supplied',
+            message: "Please Supply a valid walletId 1ert",
+            is: `${walletId}`
+        });
+        return;
+    }
+
+    const walletExist = await Wallet.findById(walletId)
+    // TODO: only allow to show transactions that match with req.header walletId
+
+    if(!walletExist) {
+        res.status(400).send({
+            error: 'UNKNOWN_WALLET',
+            message: "Please supply a valid walletID"
+        });
+        return;
+    }
+
+    const { _id: id, balance, name, createdAt: date } = walletExist
+    res.status(200).send({id, balance, name, date})
+
 
 })
 
