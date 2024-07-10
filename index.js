@@ -155,8 +155,57 @@ app.post("/transact/:walletId", async (req, res) => {
     })
 })
 
-app.get("/transactions", (req, res) => {
+app.get("/transactions", async (req, res) => {
 
+    const { walletId, skip = 0, limit = 100 } = req.query;
+    if(!mongoose.Types.ObjectId.isValid(walletId)) {
+        res.status(400).send({
+            error: 'Invalid Wallet Id supplied',
+            message: "Please Supply a valid walletId 1ert",
+            is: `${walletId}`
+        });
+        return;
+    }
+
+    const walletExist = await Wallet.findById(walletId)
+    // TODO: only allow to show transactions that match with req.header walletId
+
+    if(!walletExist) {
+        res.status(400).send({
+            error: 'UNKNOWN_WALLET',
+            message: "Please supply a valid walletID"
+        });
+        return;
+    }
+
+    const transactions = await Transaction.aggregate([{
+        $match: {walletId: new mongoose.Types.ObjectId(walletId)}
+    }, {
+        $project: {
+            id: "$_id",
+            walletId: 1,
+            amount: 1,
+            description: 1,
+            balance: "$closingBalance",
+            date: "$executedAt",
+            type: {$toUpper: "$type"}
+        }
+    }, 
+    {$skip: Number(skip)},
+    {$limit: Number(limit)}])
+
+    /**
+     * {
+        id,
+        walletId: string,
+        amount: number,
+        balance: number,
+        description: string,
+        date: <JS Date obj>,
+        type: ‘CREDIT’/’DE BIT’
+        }
+    */
+    res.status(200).send(transactions)
 })
 
 app.get("/wallet/:id", (req, res) => {
