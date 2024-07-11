@@ -3,6 +3,7 @@ const app = express();
 require('dotenv').config()
 require('./mongoose.js');
 const bodyParser = require('body-parser')
+const cors = require('cors');
 const appConstants = require('./globals/app-constants.js');
 // Database models
 const Transaction = require('./models/transaction.js')
@@ -10,6 +11,19 @@ const Wallet = require('./models/wallet.js');
 const { default: mongoose } = require('mongoose');
 
 const port = process.env.PORT || 3001;
+
+const corsOptionsDelegate = (req, next) => {
+    const allowlist = process.env.FRONT_END_URI || [];
+    let corsOptions = { optionsSuccessStatus: 200 };
+    if (allowlist.indexOf(req.header('Origin')) !== -1) {
+      corsOptions.origin = true // reflect (enable) the requested origin in the CORS response
+    } else {
+      corsOptions.origin = false // disable CORS for this request
+    }
+    next(null, corsOptions) // callback expects two parameters: error and options
+  }
+
+app.use(cors(corsOptionsDelegate));
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + '/public/index.html')
