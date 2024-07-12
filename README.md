@@ -31,6 +31,10 @@ npm run start
 
 **Note** This repo is also hosted on [Railway](https://railway.app/) however due limited developer credits & no auth protection in this project I am not able to share the link here we can connect in person to see the hosted backend service demo.
 
+**Todo**
+- Didn't got opportunity to test for Race Condition behaviour
+- upto 4 Decimal places precision in Balance.
+
 --- 
 - Thankyou I really enjoyed developing this project. Hope you find it useful.
 - For any query reach to me @[linkedIn](https://linkedin.com/in/din-s-sharma)
